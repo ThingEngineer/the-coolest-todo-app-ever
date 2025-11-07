@@ -25,6 +25,7 @@ import {
 } from "../services/supabaseStorageService";
 import { useAuth } from "./useAuth";
 import { setItem, getItem } from "../services/storageService";
+import { getAllCategories } from "../services/categoryService";
 
 /**
  * Custom hook for task management with hybrid storage
@@ -149,10 +150,14 @@ export function useTasks() {
    */
   const addTask = async (taskData) => {
     if (isAuthenticated && isOnline && user?.id) {
+      // Get local categories for ID resolution
+      const localCategories = getAllCategories();
+
       // Try Supabase first
       const { data, error: createError } = await createTaskInSupabase(
         user.id,
-        taskData
+        taskData,
+        localCategories
       );
 
       if (createError) {
@@ -188,10 +193,15 @@ export function useTasks() {
    */
   const updateTaskById = async (id, updates) => {
     if (isAuthenticated && isOnline && user?.id) {
+      // Get local categories for ID resolution
+      const localCategories = getAllCategories();
+
       // Try Supabase first
       const { data, error: updateError } = await updateTaskInSupabase(
         id,
-        updates
+        updates,
+        user.id,
+        localCategories
       );
 
       if (updateError) {
