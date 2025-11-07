@@ -24,6 +24,11 @@ export default function AnimatedBackground() {
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+
+      // CRITICAL: Immediately fill canvas with correct background color to prevent flash
+      const isDark = document.documentElement.classList.contains("dark");
+      ctx.fillStyle = isDark ? "rgba(17, 24, 39, 1)" : "rgba(249, 250, 251, 1)";
+      ctx.fillRect(0, 0, width, height);
     };
     resizeCanvas();
 
