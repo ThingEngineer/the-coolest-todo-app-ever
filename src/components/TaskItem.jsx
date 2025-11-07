@@ -45,6 +45,7 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
    */
   const confirmDelete = () => {
     onDelete(task.id);
+    setShowDeleteModal(false);
   };
 
   return (
