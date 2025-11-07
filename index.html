@@ -42,6 +42,79 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <title>✨ The Coolest Todo App (ever) - Get Things Done with Style</title>
+
+    <!-- Prevent dark mode flash by applying theme before render -->
+    <script>
+        (function () {
+            try {
+                // Get stored theme preference from localStorage
+                // Note: storage service uses 'coolest-todo-' prefix and double-encodes JSON
+                const stored = localStorage.getItem('coolest-todo-user-preferences');
+
+                let theme = 'light';
+
+                if (stored) {
+                    try {
+                        // Parse double-encoded JSON (storage service stringifies already-stringified data)
+                        const preferencesString = JSON.parse(stored);
+                        const preferences = JSON.parse(preferencesString);
+                        theme = preferences.theme || 'light';
+
+                        // If theme is 'system', detect system preference
+                        if (theme === 'system') {
+                            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                        }
+                    } catch (e) {
+                        theme = 'light';
+                    }
+                }
+
+                // Apply theme class to html element
+                const root = document.documentElement;
+                if (theme === 'dark') {
+                    root.classList.add('dark');
+                } else {
+                    root.classList.remove('dark');
+                }
+
+                // Add class to disable transitions during page load
+                root.classList.add('no-transitions');
+
+                // CRITICAL: Set colors inline to prevent flash
+                // These colors must match the CSS variables in index.css
+                const bgColor = theme === 'dark' ? '#111827' : '#f9fafb';
+                const textColor = theme === 'dark' ? '#f9fafb' : '#111827';
+
+                // Apply to html element
+                root.style.setProperty('background-color', bgColor, 'important');
+                root.style.setProperty('color', textColor, 'important');
+
+                // CRITICAL: Also set on body when it exists
+                // This prevents flash when CSS variables load
+                if (document.body) {
+                    document.body.style.setProperty('background-color', bgColor, 'important');
+                    document.body.style.setProperty('color', textColor, 'important');
+                } else {
+                    // Body doesn't exist yet, set it when DOM loads
+                    document.addEventListener('DOMContentLoaded', function () {
+                        if (document.body) {
+                            document.body.style.setProperty('background-color', bgColor, 'important');
+                            document.body.style.setProperty('color', textColor, 'important');
+                        }
+                    });
+                }
+
+                // Note: no-transitions class will be removed by themeService when React takes over
+            } catch (e) {
+                // Fallback to light theme on error
+                const root = document.documentElement;
+                root.classList.remove('dark');
+                root.classList.add('no-transitions');
+                root.style.setProperty('background-color', '#f9fafb', 'important');
+                root.style.setProperty('color', '#111827', 'important');
+            }
+        })();
+    </script>
 </head>
 
 <body>

@@ -87,6 +87,25 @@ export function applyTheme(themeId) {
   Object.entries(theme.colors).forEach(([key, value]) => {
     root.style.setProperty(`--color-${key}`, value);
   });
+
+  // Now that CSS variables are set, we can safely remove inline styles
+  // Use requestAnimationFrame to ensure CSS variables are applied first
+  requestAnimationFrame(() => {
+    // Remove inline styles from html
+    root.style.removeProperty("background-color");
+    root.style.removeProperty("color");
+
+    // Remove inline styles from body
+    if (document.body) {
+      document.body.style.removeProperty("background-color");
+      document.body.style.removeProperty("color");
+    }
+
+    // Re-enable transitions after one more frame
+    requestAnimationFrame(() => {
+      root.classList.remove("no-transitions");
+    });
+  });
 }
 
 /**
