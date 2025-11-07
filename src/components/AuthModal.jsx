@@ -7,20 +7,21 @@
 
 import { useState } from "preact/hooks";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../contexts/ToastContext";
+import { getUserFriendlyError, SuccessMessages } from "../utils/errorMessages";
 
 export function AuthModal({ onClose, onSuccess }) {
   const { signIn, signUp, loading } = useAuth();
+  const toast = useToast();
   const [mode, setMode] = useState("login"); // 'login' or 'signup'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccessMessage("");
 
     // Validation
     if (!email || !password) {
@@ -42,35 +43,36 @@ export function AuthModal({ onClose, onSuccess }) {
       if (mode === "signup") {
         const { error: signUpError } = await signUp(email, password);
         if (signUpError) {
-          setError(signUpError.message || "Sign up failed");
+          const friendlyError = getUserFriendlyError(signUpError);
+          setError(friendlyError);
+          toast.error(friendlyError);
         } else {
-          setSuccessMessage("Account created! You are now signed in.");
-          setTimeout(() => {
-            onSuccess?.();
-            onClose?.();
-          }, 1500);
+          toast.success(SuccessMessages.authSignUp);
+          onSuccess?.();
+          onClose?.();
         }
       } else {
         const { error: signInError } = await signIn(email, password);
         if (signInError) {
-          setError(signInError.message || "Sign in failed");
+          const friendlyError = getUserFriendlyError(signInError);
+          setError(friendlyError);
+          toast.error(friendlyError);
         } else {
-          setSuccessMessage("Successfully signed in!");
-          setTimeout(() => {
-            onSuccess?.();
-            onClose?.();
-          }, 1000);
+          toast.success(SuccessMessages.authSignIn);
+          onSuccess?.();
+          onClose?.();
         }
       }
     } catch (err) {
-      setError(err.message || "An error occurred");
+      const friendlyError = getUserFriendlyError(err);
+      setError(friendlyError);
+      toast.error(friendlyError);
     }
   };
 
   const toggleMode = () => {
     setMode(mode === "login" ? "signup" : "login");
     setError("");
-    setSuccessMessage("");
     setConfirmPassword("");
   };
 
@@ -179,15 +181,6 @@ export function AuthModal({ onClose, onSuccess }) {
           {error && (
             <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
               <p class="text-sm text-red-800 dark:text-red-200">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {successMessage && (
-            <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-              <p class="text-sm text-green-800 dark:text-green-200">
-                {successMessage}
-              </p>
             </div>
           )}
 

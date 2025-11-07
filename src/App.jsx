@@ -9,6 +9,7 @@ import { useTasks } from "./hooks/useTasks";
 import { useCategories } from "./hooks/useCategories";
 import { useTheme } from "./hooks/useTheme";
 import { useAuth } from "./hooks/useAuth";
+import { useToast } from "./contexts/ToastContext";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import CategoryFilter from "./components/CategoryFilter";
@@ -17,9 +18,15 @@ import ConfirmModal from "./components/ConfirmModal";
 import { UserProfile } from "./components/UserProfile";
 import AnimatedBackground from "./components/AnimatedBackground";
 import { getDateRanges, isOverdue } from "./services/dateParser";
+import {
+  getUserFriendlyError,
+  SuccessMessages,
+  InfoMessages,
+} from "./utils/errorMessages";
 
 export default function App() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const toast = useToast();
 
   const {
     tasks,
@@ -67,6 +74,81 @@ export default function App() {
   useEffect(() => {
     updateFilter({ categoryId: selectedCategoryId, sortBy });
   }, [selectedCategoryId, sortBy]);
+
+  // Show offline indicator
+  useEffect(() => {
+    if (!isOnline) {
+      toast.info(InfoMessages.offline, { duration: 3000 });
+    }
+  }, [isOnline]);
+
+  // Show sync status
+  useEffect(() => {
+    if (syncing) {
+      toast.info(InfoMessages.syncing, { duration: 2000 });
+    }
+  }, [syncing]);
+
+  // Wrapped handlers with toast notifications
+  const handleAddTask = async (taskData) => {
+    const result = await addTask(taskData);
+    if (result.success) {
+      toast.success(SuccessMessages.taskCreated);
+    } else if (result.error) {
+      toast.error(getUserFriendlyError(result.error));
+    }
+    return result;
+  };
+
+  const handleToggleTask = async (id) => {
+    const task = tasks.find((t) => t.id === id);
+    const result = await toggleTask(id);
+    if (result.success) {
+      // Only show success toast when completing (not uncompleting)
+      if (task && !task.completed) {
+        toast.success(SuccessMessages.taskCompleted, { duration: 2000 });
+      }
+    } else if (result.error) {
+      toast.error(getUserFriendlyError(result.error));
+    }
+    return result;
+  };
+
+  const handleRemoveTask = async (id) => {
+    const result = await removeTask(id);
+    if (result.success) {
+      toast.success(SuccessMessages.taskDeleted, { duration: 2000 });
+    } else if (result.error) {
+      toast.error(getUserFriendlyError(result.error));
+    }
+    return result;
+  };
+
+  const handleClearCompleted = async () => {
+    const result = await clearCompleted();
+    setShowClearModal(false);
+    if (result.success) {
+      toast.success(SuccessMessages.tasksCleared);
+    } else if (result.error) {
+      toast.error(getUserFriendlyError(result.error));
+    }
+    return result;
+  };
+
+  const handleSyncToSupabase = async () => {
+    const result = await syncToSupabase();
+    if (result.success) {
+      toast.success(SuccessMessages.syncSuccess);
+    } else if (result.error) {
+      toast.error(getUserFriendlyError(result.error), {
+        action: {
+          label: "Retry",
+          onClick: handleSyncToSupabase,
+        },
+      });
+    }
+    return result;
+  };
 
   // Apply quick date filters
   const applyQuickFilter = (tasks) => {
@@ -212,7 +294,7 @@ export default function App() {
         <main>
           <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
             <TaskInput
-              onAddTask={addTask}
+              onAddTask={handleAddTask}
               error={error}
               categories={categories}
             />
@@ -308,8 +390,8 @@ export default function App() {
                 <TaskList
                   tasks={activeTasks}
                   loading={loading}
-                  onToggleTask={toggleTask}
-                  onDeleteTask={removeTask}
+                  onToggleTask={handleToggleTask}
+                  onDeleteTask={handleRemoveTask}
                   categories={categories}
                 />
               </div>
@@ -331,9 +413,9 @@ export default function App() {
                 </div>
                 <TaskList
                   tasks={completedTasks}
-                  loading={false}
-                  onToggleTask={toggleTask}
-                  onDeleteTask={removeTask}
+                  loading={loading}
+                  onToggleTask={handleToggleTask}
+                  onDeleteTask={handleRemoveTask}
                   categories={categories}
                 />
               </div>
@@ -390,7 +472,7 @@ export default function App() {
       <ConfirmModal
         isOpen={showClearModal}
         onClose={() => setShowClearModal(false)}
-        onConfirm={clearCompleted}
+        onConfirm={handleClearCompleted}
         title="Clear Completed Tasks?"
         message={`Are you sure you want to permanently delete ${
           completedTasks.length
