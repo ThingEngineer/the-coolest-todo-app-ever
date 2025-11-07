@@ -359,14 +359,15 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 **Purpose**: Refinements based on user feedback
 
 - [x] T115 [UX] Replace distracting task completion animation with smooth slide transitions between Active/Completed sections (src/styles/animations.css, src/components/TaskItem.jsx, src/components/TaskList.jsx, src/App.jsx)
+- [x] T116 [UX] Implement mobile swipe actions - swipe left to delete, swipe right to complete with visual feedback and haptic response (src/hooks/useTouchSwipe.js, src/components/TaskItem.jsx)
 
-**Checkpoint**: Smooth, non-distracting animations when toggling task completion
+**Checkpoint**: Smooth, non-distracting animations and intuitive mobile swipe gestures
 
 ---
 
 ## Task Summary
 
-**Total Tasks**: 115
+**Total Tasks**: 116
 
 - Phase 1 (Setup): 12 tasks
 - Phase 2 (Foundational): 6 tasks
@@ -376,7 +377,7 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 - Phase 6 (US4): 14 tasks
 - Phase 7 (US5): 17 tasks
 - Phase 8 (Polish): 24 tasks
-- Phase 9 (UX Improvements): 1 task
+- Phase 9 (UX Improvements): 2 tasks
 
 **Parallel Opportunities**: 61 tasks marked [P] can run in parallel within their phase
 

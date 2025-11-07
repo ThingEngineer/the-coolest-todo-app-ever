@@ -25,7 +25,8 @@ A modern, feature-rich todo application built with Vite, Preact, Tailwind CSS, a
 ### User Experience
 
 - 🎭 **Smooth Animations**: Delightful transitions and micro-interactions
-- 🔍 **Smart Filtering**: Filter by category, date range (Today, This Week, Overdue)
+- � **Mobile Swipe Actions**: Swipe left to delete, swipe right to complete (with haptic feedback)
+- �🔍 **Smart Filtering**: Filter by category, date range (Today, This Week, Overdue)
 - 📊 **Sort Options**: Sort by creation order, due date, or title
 - 🌓 **Dark Mode**: Full dark mode support with smooth transitions
 - 📱 **Responsive Design**: Works beautifully on all screen sizes
