@@ -129,6 +129,7 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
       {/* Task Title and Category */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start sm:items-center gap-2 flex-wrap">
+          {/* Task title - Preact automatically escapes text content to prevent XSS */}
           <p
             className={`
               text-sm sm:text-base leading-snug sm:leading-normal

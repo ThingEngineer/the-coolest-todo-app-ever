@@ -5,6 +5,7 @@
 
 import { getItem, setItem } from "./storageService";
 import { validateTaskTitle } from "../utils/validators";
+import { sanitizeTaskTitle } from "../utils/sanitize";
 import { generateId } from "../utils/helpers";
 import { getDemoTasks } from "./demoData";
 
@@ -129,8 +130,11 @@ export function getTaskById(id) {
  * @returns {Object} { success: boolean, task: Task, error: string }
  */
 export function createTask(taskData) {
-  // Validate title
-  const validation = validateTaskTitle(taskData.title);
+  // Sanitize title first
+  const sanitizedTitle = sanitizeTaskTitle(taskData.title);
+
+  // Validate sanitized title
+  const validation = validateTaskTitle(sanitizedTitle);
   if (!validation.valid) {
     return { success: false, task: null, error: validation.error };
   }
@@ -141,7 +145,7 @@ export function createTask(taskData) {
 
   const newTask = {
     id: generateId(),
-    title: taskData.title.trim(),
+    title: sanitizedTitle,
     completed: false,
     createdAt: new Date().toISOString(),
     order: maxOrder + 1,
@@ -176,11 +180,13 @@ export function updateTask(id, updates) {
 
   // Validate title if being updated
   if (updates.title !== undefined) {
-    const validation = validateTaskTitle(updates.title);
+    // Sanitize title first
+    const sanitizedTitle = sanitizeTaskTitle(updates.title);
+    const validation = validateTaskTitle(sanitizedTitle);
     if (!validation.valid) {
       return { success: false, task: null, error: validation.error };
     }
-    updates.title = updates.title.trim();
+    updates.title = sanitizedTitle;
   }
 
   tasks[index] = { ...tasks[index], ...updates };

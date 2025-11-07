@@ -6,6 +6,7 @@
  */
 
 import supabase, { isSupabaseAvailable } from "../config/supabase.js";
+import { sanitizeTaskTitle, sanitizeCategoryName } from "../utils/sanitize.js";
 
 /**
  * Fetch all tasks for the current user from Supabase
@@ -31,10 +32,10 @@ export async function fetchTasks(userId) {
       return { data: [], error };
     }
 
-    // Transform Supabase format to app format
+    // Transform Supabase format to app format and sanitize data from database
     const tasks = data.map((task) => ({
       id: task.id,
-      title: task.title,
+      title: sanitizeTaskTitle(task.title), // Sanitize data from external source
       completed: task.completed,
       createdAt: task.created_at,
       completedAt: task.completed_at,
@@ -386,10 +387,10 @@ export async function fetchCategories(userId) {
       return { data: [], error };
     }
 
-    // Transform to app format
+    // Transform to app format and sanitize data from database
     const categories = data.map((cat) => ({
       id: cat.id,
-      name: cat.name,
+      name: sanitizeCategoryName(cat.name), // Sanitize data from external source
       color: cat.color,
       createdAt: cat.created_at,
       order: cat.category_order,
