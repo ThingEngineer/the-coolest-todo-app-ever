@@ -27,16 +27,16 @@ export default function ThemeSelector({
       {/* Theme Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
         aria-label="Select theme"
         aria-expanded={isOpen}
       >
-        <span className="text-xl">{activeTheme.icon}</span>
-        <span className="hidden sm:inline text-gray-700 dark:text-gray-300">
+        <span className="text-lg sm:text-xl">{activeTheme.icon}</span>
+        <span className="hidden sm:inline text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
           {isSystemTheme ? "System" : activeTheme.name}
         </span>
         <svg
-          className={`w-4 h-4 text-gray-500 transition-transform ${
+          className={`w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
           fill="none"
@@ -62,17 +62,36 @@ export default function ThemeSelector({
             aria-hidden="true"
           />
 
-          {/* Dropdown Menu */}
-          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl z-20 overflow-hidden">
-            <div className="p-2">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                Theme
+          {/* Dropdown Menu - Mobile: Full width at bottom, Desktop: Right-aligned dropdown */}
+          <div className="fixed sm:absolute left-0 right-0 bottom-0 sm:left-auto sm:right-0 sm:bottom-auto sm:mt-2 w-full sm:w-64 bg-white dark:bg-gray-800 border-t sm:border border-gray-300 dark:border-gray-600 sm:rounded-lg shadow-xl z-20 max-h-[70vh] sm:max-h-96 overflow-y-auto">
+            <div className="p-3 sm:p-2">
+              <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center justify-between">
+                <span>Theme</span>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="sm:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  aria-label="Close theme selector"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
               </div>
 
               {/* System Theme Option */}
               <button
                 onClick={() => handleThemeSelect("system")}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 text-left rounded-md transition ${
                   themePreference === "system"
                     ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
                     : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
@@ -107,7 +126,7 @@ export default function ThemeSelector({
                 <button
                   key={theme.id}
                   onClick={() => handleThemeSelect(theme.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 sm:py-2 text-left rounded-md transition ${
                     themePreference === theme.id
                       ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200"
                       : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
@@ -115,14 +134,16 @@ export default function ThemeSelector({
                 >
                   <span className="text-xl">{theme.icon}</span>
                   <div className="flex-1">
-                    <div className="font-medium">{theme.name}</div>
+                    <div className="font-medium text-sm sm:text-base">
+                      {theme.name}
+                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {theme.description}
                     </div>
                   </div>
                   {themePreference === theme.id && (
                     <svg
-                      className="w-5 h-5 text-blue-500"
+                      className="w-5 h-5 text-blue-500 flex-shrink-0"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >

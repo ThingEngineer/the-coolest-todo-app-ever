@@ -1,17 +1,23 @@
-/* Task completion animations */
+/* Task completion animations with smooth spring effect */
 
 @keyframes taskComplete {
   0% {
-    transform: scale(1);
-    opacity: 1;
+    transform: scale(1) rotate(0deg);
   }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
+  20% {
+    transform: scale(1.03) rotate(-1deg);
+  }
+  40% {
+    transform: scale(1.05) rotate(1deg);
+  }
+  60% {
+    transform: scale(1.02) rotate(-0.5deg);
+  }
+  80% {
+    transform: scale(0.99) rotate(0.5deg);
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -46,9 +52,47 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Animation classes */
 .animate-task-complete {
-  animation: taskComplete 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: taskComplete 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .animate-strike-through {
@@ -70,13 +114,26 @@
   animation: fadeOut 0.3s ease-out forwards;
 }
 
-.animate-slide-in-down {
-  animation: slideInDown 0.3s ease-out;
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Transition utilities */
+.animate-slide-in-down {
+  animation: slideInDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Transition utilities with spring effect */
 .transition-complete {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.transition-spring {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease;
 }
 
 /* Task item states */
@@ -85,16 +142,19 @@
   text-decoration: line-through;
   text-decoration-color: currentColor;
   text-decoration-thickness: 2px;
+  transition: opacity 0.6s ease-out, text-decoration 0.4s ease;
 }
 
 .task-active {
   opacity: 1;
+  transition: opacity 0.6s ease-out;
 }
 
 /* Theme transition animations */
 .theme-transition {
-  transition: background-color 0.3s ease, color 0.3s ease,
-    border-color 0.3s ease;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes themeChange {
@@ -117,9 +177,10 @@
   transition-timing-function: ease-in-out;
 }
 
-/* Disable transitions for animations and transforms to avoid conflicts */
-*:where([class*="animate-"], [class*="transition-transform"]) {
-  transition-property: none;
+/* Disable transitions for animated elements to avoid conflicts */
+*:where([class*="animate-"]) {
+  transition-property: none !important;
+  transition-duration: 0s !important;
 }
 
 /* Modal animations */

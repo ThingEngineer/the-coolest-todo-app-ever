@@ -25,11 +25,11 @@ export function UserProfile() {
       <>
         <button
           onClick={() => setShowAuthModal(true)}
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 
+          class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400 
                  hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
         >
           <svg
-            class="w-5 h-5"
+            class="w-4 h-4 sm:w-5 sm:h-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -41,7 +41,7 @@ export function UserProfile() {
               d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
             />
           </svg>
-          <span>Sign In</span>
+          <span class="hidden sm:inline">Sign In</span>
         </button>
 
         {showAuthModal && (
@@ -59,16 +59,16 @@ export function UserProfile() {
     <div class="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
+        class="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300
                hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         {/* User Avatar */}
-        <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-xs sm:text-sm">
           {user?.email?.[0]?.toUpperCase() || "U"}
         </div>
 
-        {/* User Email (truncated) */}
-        <span class="hidden sm:inline max-w-[150px] truncate">
+        {/* User Email (truncated) - hidden on mobile */}
+        <span class="hidden sm:inline max-w-[150px] truncate text-xs sm:text-sm">
           {user?.email}
         </span>
 
@@ -82,7 +82,7 @@ export function UserProfile() {
 
         {/* Dropdown Arrow */}
         <svg
-          class={`w-4 h-4 transition-transform ${
+          class={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${
             showDropdown ? "rotate-180" : ""
           }`}
           fill="none"
@@ -107,16 +107,39 @@ export function UserProfile() {
             onClick={() => setShowDropdown(false)}
           />
 
-          {/* Dropdown Content */}
+          {/* Dropdown Content - Mobile: Bottom sheet, Desktop: Dropdown */}
           <div
-            class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg 
-                      border border-gray-200 dark:border-gray-700 z-20"
+            class="fixed sm:absolute left-0 right-0 bottom-0 sm:left-auto sm:right-0 sm:bottom-auto sm:mt-2 
+                   w-full sm:w-64 bg-white dark:bg-gray-800 sm:rounded-lg rounded-t-lg shadow-lg 
+                   border-t sm:border border-gray-200 dark:border-gray-700 z-20 max-h-[70vh] sm:max-h-96 overflow-y-auto"
           >
             {/* User Info */}
             <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
-                {user?.email}
-              </p>
+              <div class="flex items-center justify-between mb-2 sm:mb-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white truncate flex-1">
+                  {user?.email}
+                </p>
+                {/* Close button for mobile */}
+                <button
+                  onClick={() => setShowDropdown(false)}
+                  class="sm:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 ml-2"
+                  aria-label="Close user menu"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {isOnline
                   ? "🟢 Online - Syncing with cloud"
@@ -137,7 +160,7 @@ export function UserProfile() {
               <button
                 onClick={handleSignOut}
                 disabled={loading}
-                class="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400
+                class="w-full px-4 py-2.5 sm:py-2 text-left text-sm text-red-600 dark:text-red-400
                        hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors
                        disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
@@ -159,7 +182,7 @@ export function UserProfile() {
             </div>
 
             {/* Footer Info */}
-            <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-2 sm:py-2 border-t border-gray-200 dark:border-gray-700">
               <p class="text-xs text-gray-500 dark:text-gray-400">
                 💡 Your tasks are automatically synced when online
               </p>

@@ -72,7 +72,7 @@ export default function TaskInput({ onAddTask, error, categories }) {
   const selectedCategory = getSelectedCategory();
 
   return (
-    <div className="mb-6">
+    <div className="mb-4 sm:mb-6">
       <form onSubmit={handleSubmit}>
         <div className="relative">
           <input
@@ -82,7 +82,7 @@ export default function TaskInput({ onAddTask, error, categories }) {
             onKeyPress={handleKeyPress}
             placeholder="What needs to be done?"
             className={`
-              w-full px-4 py-3 text-lg
+              w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg
               bg-white dark:bg-dark-surface
               text-light-text dark:text-dark-text
               border-2 rounded-lg
@@ -94,7 +94,7 @@ export default function TaskInput({ onAddTask, error, categories }) {
                   : "border-light-border dark:border-dark-border"
               }
               placeholder:text-gray-400 dark:placeholder:text-gray-500
-              ${selectedCategory ? "pr-32" : "pr-20"}
+              ${selectedCategory ? "pr-28 sm:pr-32" : "pr-16 sm:pr-20"}
             `}
             maxLength={500}
             aria-label="Task title"
@@ -104,16 +104,19 @@ export default function TaskInput({ onAddTask, error, categories }) {
 
           {/* Category Badge (when selected) */}
           {selectedCategory && (
-            <div className="absolute right-20 top-1/2 -translate-y-1/2">
+            <div className="absolute right-14 sm:right-20 top-1/2 -translate-y-1/2">
               {(() => {
                 const colorClasses = getCategoryColorClasses(
                   selectedCategory.color
                 );
                 return (
                   <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${colorClasses.bg} text-white`}
+                    className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${colorClasses.bg} text-white`}
                   >
-                    {selectedCategory.name}
+                    <span className="hidden sm:inline">
+                      {selectedCategory.name}
+                    </span>
+                    <span className="sm:hidden">{selectedCategory.icon}</span>
                   </span>
                 );
               })()}
@@ -141,15 +144,15 @@ export default function TaskInput({ onAddTask, error, categories }) {
 
         {/* Category Selector */}
         {categories && categories.length > 0 && (
-          <div className="mt-3 flex items-center gap-2">
-            <label className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+            <label className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               Category:
             </label>
             <select
               value={selectedCategoryId || ""}
               onChange={(e) => setSelectedCategoryId(e.target.value || null)}
               className="
-                px-3 py-1 text-sm rounded-md
+                px-2 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-sm rounded-md
                 bg-white dark:bg-dark-surface
                 border border-light-border dark:border-dark-border
                 text-light-text dark:text-dark-text
