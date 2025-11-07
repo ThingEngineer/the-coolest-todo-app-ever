@@ -28,6 +28,7 @@ describe("taskService", () => {
     vi.clearAllMocks();
     // Default mock implementation returns empty array
     storageService.getItem.mockReturnValue([]);
+    storageService.setItem.mockReturnValue(true);
   });
 
   describe("createTask", () => {

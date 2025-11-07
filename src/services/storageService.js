@@ -62,11 +62,15 @@ export function removeItem(key) {
  */
 export function clearAll() {
   try {
-    const keys = Object.keys(localStorage);
-    keys.forEach((key) => {
-      if (key.startsWith(STORAGE_PREFIX)) {
-        localStorage.removeItem(key);
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(STORAGE_PREFIX)) {
+        keys.push(key);
       }
+    }
+    keys.forEach((key) => {
+      localStorage.removeItem(key);
     });
     return true;
   } catch (error) {
@@ -97,9 +101,11 @@ export function isAvailable() {
 export function getStorageSize() {
   try {
     let total = 0;
-    for (let key in localStorage) {
-      if (localStorage.hasOwnProperty(key) && key.startsWith(STORAGE_PREFIX)) {
-        total += localStorage[key].length + key.length;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(STORAGE_PREFIX)) {
+        const value = localStorage.getItem(key);
+        total += (value ? value.length : 0) + key.length;
       }
     }
     return total;
@@ -116,14 +122,15 @@ export function getStorageSize() {
 export function exportData() {
   try {
     const data = {};
-    const keys = Object.keys(localStorage);
 
-    keys.forEach((key) => {
-      if (key.startsWith(STORAGE_PREFIX)) {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(STORAGE_PREFIX)) {
         const cleanKey = key.replace(STORAGE_PREFIX, "");
-        data[cleanKey] = JSON.parse(localStorage[key]);
+        const value = localStorage.getItem(key);
+        data[cleanKey] = value ? JSON.parse(value) : null;
       }
-    });
+    }
 
     data._exportDate = new Date().toISOString();
     data._version = "1.0.0";

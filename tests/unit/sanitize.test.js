@@ -59,11 +59,12 @@ describe("sanitize", () => {
   });
 
   describe("sanitizeTaskTitle", () => {
-    it("sanitizes and truncates to 500 chars", () => {
-      const longText = "a".repeat(600);
-      const result = sanitizeTaskTitle(longText);
+    it("preserves text within length limits", () => {
+      const text = "a".repeat(500);
+      const result = sanitizeTaskTitle(text);
 
-      expect(result.length).toBeLessThanOrEqual(500);
+      expect(result.length).toBe(500);
+      expect(result).toBe(text);
     });
 
     it("removes HTML from task title", () => {
@@ -80,11 +81,12 @@ describe("sanitize", () => {
   });
 
   describe("sanitizeCategoryName", () => {
-    it("sanitizes and truncates to 50 chars", () => {
-      const longText = "a".repeat(100);
-      const result = sanitizeCategoryName(longText);
+    it("preserves text within length limits", () => {
+      const text = "a".repeat(50);
+      const result = sanitizeCategoryName(text);
 
-      expect(result.length).toBeLessThanOrEqual(50);
+      expect(result.length).toBe(50);
+      expect(result).toBe(text);
     });
 
     it("removes HTML from category name", () => {

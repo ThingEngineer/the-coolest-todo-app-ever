@@ -32,14 +32,7 @@ export function sanitizeText(input) {
  * @returns {string} Sanitized task title
  */
 export function sanitizeTaskTitle(title) {
-  const sanitized = sanitizeText(title);
-
-  // Additional validation for task titles
-  if (sanitized.length > 500) {
-    return sanitized.substring(0, 500);
-  }
-
-  return sanitized;
+  return sanitizeText(title);
 }
 
 /**
@@ -48,14 +41,7 @@ export function sanitizeTaskTitle(title) {
  * @returns {string} Sanitized category name
  */
 export function sanitizeCategoryName(name) {
-  const sanitized = sanitizeText(name);
-
-  // Additional validation for category names
-  if (sanitized.length > 50) {
-    return sanitized.substring(0, 50);
-  }
-
-  return sanitized;
+  return sanitizeText(name);
 }
 
 /**

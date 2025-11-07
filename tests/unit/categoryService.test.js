@@ -16,19 +16,25 @@ import * as storageService from "../../src/services/storageService";
 import * as validators from "../../src/utils/validators";
 import * as helpers from "../../src/utils/helpers";
 
-vi.mock("../../src/services/storageService");
+// Mock storage service
+vi.mock("../../src/services/storageService", () => ({
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+}));
 vi.mock("../../src/utils/validators");
 vi.mock("../../src/utils/helpers");
 
 describe("categoryService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    // Default mock implementation returns empty array
+    storageService.getItem.mockReturnValue([]);
   });
 
   describe("initializeDemoCategories", () => {
     it("initializes demo categories on first launch", () => {
       storageService.getItem.mockReturnValueOnce(false); // not initialized
-      storageService.getItem.mockReturnValueOnce([]); // getAllCategories
       storageService.setItem.mockReturnValue(true);
 
       const result = initializeDemoCategories();
@@ -42,9 +48,13 @@ describe("categoryService", () => {
 
     it("returns existing categories if already initialized", () => {
       const existingCategories = [{ id: "1", name: "Work", color: "#3B82F6" }];
-      storageService.getItem
-        .mockReturnValueOnce(true) // initialized
-        .mockReturnValueOnce(existingCategories); // getAllCategories
+
+      // Set up mock to return different values for different keys
+      storageService.getItem.mockImplementation((key, defaultValue) => {
+        if (key === "categories-initialized") return true;
+        if (key === "categories") return existingCategories;
+        return defaultValue;
+      });
 
       const result = initializeDemoCategories();
 
