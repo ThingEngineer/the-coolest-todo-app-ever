@@ -20,10 +20,12 @@ import {
   createTaskInSupabase,
   updateTaskInSupabase,
   deleteTaskFromSupabase,
+  clearCompletedTasksFromSupabase,
   syncLocalDataToSupabase,
 } from "../services/supabaseStorageService";
 import { useAuth } from "./useAuth";
 import { setItem, getItem } from "../services/storageService";
+import { getAllCategories } from "../services/categoryService";
 
 /**
  * Custom hook for task management with hybrid storage
@@ -148,10 +150,14 @@ export function useTasks() {
    */
   const addTask = async (taskData) => {
     if (isAuthenticated && isOnline && user?.id) {
+      // Get local categories for ID resolution
+      const localCategories = getAllCategories();
+
       // Try Supabase first
       const { data, error: createError } = await createTaskInSupabase(
         user.id,
-        taskData
+        taskData,
+        localCategories
       );
 
       if (createError) {
@@ -187,10 +193,15 @@ export function useTasks() {
    */
   const updateTaskById = async (id, updates) => {
     if (isAuthenticated && isOnline && user?.id) {
+      // Get local categories for ID resolution
+      const localCategories = getAllCategories();
+
       // Try Supabase first
       const { data, error: updateError } = await updateTaskInSupabase(
         id,
-        updates
+        updates,
+        user.id,
+        localCategories
       );
 
       if (updateError) {
@@ -274,19 +285,39 @@ export function useTasks() {
   };
 
   /**
-   * Clear all completed tasks
+   * Clear all completed tasks (hybrid storage)
    * @returns {Object} Result
    */
-  const clearCompleted = () => {
-    const result = clearCompletedTasks();
+  const clearCompleted = async () => {
+    if (isAuthenticated && isOnline && user?.id) {
+      // Try Supabase first
+      const { data, error: clearError } = await clearCompletedTasksFromSupabase(
+        user.id
+      );
 
-    if (result.success) {
-      loadTasks();
+      if (clearError) {
+        console.error("Failed to clear from Supabase:", clearError);
+        // Fall back to localStorage
+        const result = clearCompletedTasks();
+        if (result.success) {
+          await loadTasks();
+        }
+        return result;
+      }
+
+      // Success - reload from Supabase
+      await loadTasks();
+      return { success: true, count: data?.count || 0, error: null };
     } else {
-      setError(result.error);
+      // Use localStorage
+      const result = clearCompletedTasks();
+      if (result.success) {
+        await loadTasks();
+      } else {
+        setError(result.error);
+      }
+      return result;
     }
-
-    return result;
   };
 
   /**

@@ -6,9 +6,11 @@
 import { useState } from "preact/hooks";
 import { getCategoryColorClasses } from "../utils/helpers";
 import { formatDate, isOverdue } from "../services/dateParser";
+import ConfirmModal from "./ConfirmModal";
 
 export default function TaskItem({ task, onToggle, onDelete, category }) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const taskIsOverdue =
     !task.completed && task.dueDate && isOverdue(task.dueDate);
 
@@ -35,10 +37,15 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
    */
   const handleDelete = (e) => {
     e.stopPropagation();
+    setShowDeleteModal(true);
+  };
 
-    if (confirm(`Delete task "${task.title}"?`)) {
-      onDelete(task.id);
-    }
+  /**
+   * Confirm and execute delete
+   */
+  const confirmDelete = () => {
+    onDelete(task.id);
+    setShowDeleteModal(false);
   };
 
   return (
@@ -190,6 +197,18 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
           />
         </svg>
       </button>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Task?"
+        message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }
