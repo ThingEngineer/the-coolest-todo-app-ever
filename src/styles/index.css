@@ -45,11 +45,17 @@ html.no-transitions * {
   transition: none !important;
 }
 
+/* Body inherits colors from html element (set by inline script) to prevent flash */
 body {
   min-height: 100vh;
+  /* Don't set background-color/color here during no-transitions phase - inline styles handle it */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Once transitions are enabled, use CSS variables */
+html:not(.no-transitions) body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #app {
