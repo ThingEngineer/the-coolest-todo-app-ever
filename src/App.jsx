@@ -15,6 +15,7 @@ import CategoryFilter from "./components/CategoryFilter";
 import ThemeSelector from "./components/ThemeSelector";
 import ConfirmModal from "./components/ConfirmModal";
 import { UserProfile } from "./components/UserProfile";
+import AnimatedBackground from "./components/AnimatedBackground";
 import { getDateRanges, isOverdue } from "./services/dateParser";
 
 export default function App() {
@@ -129,26 +130,29 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg transition-theme duration-300">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <header className="mb-8">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg transition-theme duration-300 relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-2xl lg:max-w-4xl relative z-10">
+        <header className="mb-4 sm:mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-light-text dark:text-dark-text mb-1 sm:mb-2 leading-tight">
                 ✨ The Coolest Todo App{" "}
-                <span className="text-lg sm:text-xl md:text-2xl font-light text-gray-400 dark:text-gray-500 italic">
+                <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-light text-gray-400 dark:text-gray-500 italic whitespace-nowrap">
                   (ever)
                 </span>
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Get things done with style
                 {isAuthenticated && isOnline && (
-                  <span className="ml-2 text-green-600 dark:text-green-400 text-sm">
+                  <span className="ml-2 text-green-600 dark:text-green-400 text-xs sm:text-sm">
                     ☁️ Syncing
                   </span>
                 )}
                 {isAuthenticated && !isOnline && (
-                  <span className="ml-2 text-orange-600 dark:text-orange-400 text-sm">
+                  <span className="ml-2 text-orange-600 dark:text-orange-400 text-xs sm:text-sm">
                     📱 Offline
                   </span>
                 )}
@@ -156,7 +160,7 @@ export default function App() {
             </div>
 
             {/* User Profile & Theme Selector */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <UserProfile />
               <ThemeSelector
                 currentTheme={currentTheme}
@@ -170,7 +174,7 @@ export default function App() {
 
           {/* Stats */}
           {stats.total > 0 && (
-            <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <div className="mt-3 sm:mt-4 flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
               <span className="text-gray-600 dark:text-gray-400">
                 Total:{" "}
                 <strong className="text-light-text dark:text-dark-text">
@@ -196,7 +200,7 @@ export default function App() {
               {stats.completed > 0 && (
                 <button
                   onClick={() => setShowCompleted(!showCompleted)}
-                  className="ml-auto text-xs px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  className="ml-auto text-xs px-2 sm:px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
                   {showCompleted ? "Hide" : "Show"} completed
                 </button>
@@ -206,7 +210,7 @@ export default function App() {
         </header>
 
         <main>
-          <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-6">
+          <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
             <TaskInput
               onAddTask={addTask}
               error={error}
@@ -224,12 +228,12 @@ export default function App() {
             )}
 
             {/* Sort and Quick Date Filters */}
-            <div className="flex flex-wrap items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="sort"
-                  className="text-sm text-gray-600 dark:text-gray-400"
+                  className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-shrink-0"
                 >
                   Sort by:
                 </label>
@@ -237,7 +241,7 @@ export default function App() {
                   id="sort"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 sm:flex-initial px-2 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="order">Creation Order</option>
                   <option value="dueDate">Due Date</option>
@@ -246,55 +250,59 @@ export default function App() {
               </div>
 
               {/* Quick Date Filters */}
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
                   Quick:
                 </span>
-                <button
-                  onClick={() =>
-                    setQuickFilter(quickFilter === "today" ? null : "today")
-                  }
-                  className={`px-2.5 py-1 text-xs rounded transition ${
-                    quickFilter === "today"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  📅 Today
-                </button>
-                <button
-                  onClick={() =>
-                    setQuickFilter(
-                      quickFilter === "thisWeek" ? null : "thisWeek"
-                    )
-                  }
-                  className={`px-2.5 py-1 text-xs rounded transition ${
-                    quickFilter === "thisWeek"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  📆 This Week
-                </button>
-                <button
-                  onClick={() =>
-                    setQuickFilter(quickFilter === "overdue" ? null : "overdue")
-                  }
-                  className={`px-2.5 py-1 text-xs rounded transition ${
-                    quickFilter === "overdue"
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  ⚠️ Overdue
-                </button>
+                <div className="flex gap-2 flex-shrink-0">
+                  <button
+                    onClick={() =>
+                      setQuickFilter(quickFilter === "today" ? null : "today")
+                    }
+                    className={`px-2 sm:px-2.5 py-1 text-xs rounded whitespace-nowrap transition ${
+                      quickFilter === "today"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    📅 Today
+                  </button>
+                  <button
+                    onClick={() =>
+                      setQuickFilter(
+                        quickFilter === "thisWeek" ? null : "thisWeek"
+                      )
+                    }
+                    className={`px-2 sm:px-2.5 py-1 text-xs rounded whitespace-nowrap transition ${
+                      quickFilter === "thisWeek"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    📆 This Week
+                  </button>
+                  <button
+                    onClick={() =>
+                      setQuickFilter(
+                        quickFilter === "overdue" ? null : "overdue"
+                      )
+                    }
+                    className={`px-2 sm:px-2.5 py-1 text-xs rounded whitespace-nowrap transition ${
+                      quickFilter === "overdue"
+                        ? "bg-red-500 text-white"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    ⚠️ Overdue
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Active Tasks */}
             {activeTasks.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-wide">
                   Active Tasks
                 </h2>
                 <TaskList
@@ -310,13 +318,13 @@ export default function App() {
             {/* Completed Tasks */}
             {showCompleted && completedTasks.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                     Completed Tasks
                   </h2>
                   <button
                     onClick={() => setShowClearModal(true)}
-                    className="px-3 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-danger hover:bg-danger/10 rounded transition"
+                    className="px-2 sm:px-3 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-danger hover:bg-danger/10 rounded transition"
                   >
                     🗑️ Clear Completed
                   </button>
@@ -335,33 +343,45 @@ export default function App() {
             {activeTasks.length === 0 &&
               completedTasks.length === 0 &&
               !loading && (
-                <div className="text-center py-12">
-                  <svg
-                    className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                    No tasks yet
+                <div className="text-center py-12 sm:py-16">
+                  <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/10 mb-4">
+                    <svg
+                      className="h-8 w-8 sm:h-10 sm:w-10 text-primary"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    {quickFilter === "today"
+                      ? "No tasks due today! 🎉"
+                      : quickFilter === "thisWeek"
+                      ? "No tasks this week! 🌟"
+                      : quickFilter === "overdue"
+                      ? "No overdue tasks! 👍"
+                      : selectedCategoryId !== undefined
+                      ? "No tasks in this category"
+                      : "No tasks yet"}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Get started by creating your first task above!
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                    {quickFilter || selectedCategoryId !== undefined
+                      ? "Try a different filter or create a new task"
+                      : "Get started by creating your first task above!"}
                   </p>
                 </div>
               )}
           </div>
         </main>
 
-        <footer className="mt-8 text-center text-sm text-gray-500 dark:text-gray-500">
+        <footer className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-500">
           <p>Made with ❤️ using Vite, Preact, and Tailwind CSS</p>
         </footer>
       </div>

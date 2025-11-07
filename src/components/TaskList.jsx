@@ -14,11 +14,24 @@ export default function TaskList({
 }) {
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent" />
-        <p className="mt-4 text-gray-500 dark:text-gray-400">
-          Loading tasks...
-        </p>
+      <div
+        className="space-y-2 sm:space-y-3"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        {/* Skeleton loaders */}
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-lg animate-pulse"
+          >
+            <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -38,7 +51,7 @@ export default function TaskList({
   };
 
   return (
-    <div className="space-y-2" role="list" aria-label="Tasks">
+    <div className="space-y-2 sm:space-y-3" role="list" aria-label="Tasks">
       {tasks.map((task) => (
         <div key={task.id} role="listitem" className="animate-slide-in-down">
           <TaskItem

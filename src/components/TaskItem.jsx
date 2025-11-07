@@ -6,6 +6,7 @@
 import { useState } from "preact/hooks";
 import { getCategoryColorClasses } from "../utils/helpers";
 import { formatDate, isOverdue } from "../services/dateParser";
+import { hapticTaskComplete, hapticDelete } from "../utils/haptics";
 import ConfirmModal from "./ConfirmModal";
 
 export default function TaskItem({ task, onToggle, onDelete, category }) {
@@ -15,7 +16,7 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
     !task.completed && task.dueDate && isOverdue(task.dueDate);
 
   /**
-   * Handle task click to toggle completion with animation
+   * Handle task click to toggle completion with animation and haptic feedback
    */
   const handleClick = (e) => {
     // Prevent toggle when clicking delete button
@@ -26,10 +27,15 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
     setIsAnimating(true);
     onToggle(task.id);
 
-    // Reset animation after it completes
+    // Trigger haptic feedback when completing a task
+    if (!task.completed) {
+      hapticTaskComplete();
+    }
+
+    // Reset animation after it completes (match animation duration)
     setTimeout(() => {
       setIsAnimating(false);
-    }, 500);
+    }, 800);
   };
 
   /**
@@ -44,6 +50,8 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
    * Confirm and execute delete
    */
   const confirmDelete = () => {
+    // Trigger haptic feedback on delete
+    hapticDelete();
     onDelete(task.id);
     setShowDeleteModal(false);
   };
@@ -52,18 +60,23 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
     <div
       className={`
         group
-        flex items-center gap-3 p-4
+        flex items-center gap-3 p-3 sm:p-4
         bg-white dark:bg-dark-surface
         border border-light-border dark:border-dark-border
         rounded-lg
-        transition-all duration-200
         hover:shadow-md hover:border-primary/50
         focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2
         cursor-pointer
         ${task.completed ? "opacity-60" : "opacity-100"}
         ${isAnimating ? "animate-task-complete" : ""}
         ${taskIsOverdue ? "border-l-4 border-l-danger" : ""}
+        active:scale-[0.98]
       `}
+      style={{
+        transition: isAnimating
+          ? "none"
+          : "all 0.2s ease, opacity 0.6s ease-out",
+      }}
       onClick={handleClick}
       role="checkbox"
       aria-checked={task.completed}
@@ -87,9 +100,9 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
       <div
         className={`
           flex-shrink-0
-          w-6 h-6 rounded-md border-2
+          w-6 h-6 sm:w-7 sm:h-7 rounded-md border-2
           flex items-center justify-center
-          transition-all duration-300
+          transition-all duration-500
           ${
             task.completed
               ? "bg-primary border-primary scale-110"
@@ -115,10 +128,10 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
 
       {/* Task Title and Category */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-start sm:items-center gap-2 flex-wrap">
           <p
             className={`
-              text-base
+              text-sm sm:text-base leading-snug sm:leading-normal
               text-light-text dark:text-dark-text
               transition-all duration-300
               ${task.completed ? "task-completed" : "task-active"}
@@ -126,16 +139,20 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
           >
             {task.title}
           </p>
+        </div>
 
+        {/* Category Badge and Overdue on new line for mobile */}
+        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           {/* Category Badge */}
           {category && (
             <span
               className={`
-                inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
                 ${getCategoryColorClasses(category.color).bg} text-white
               `}
             >
-              {category.name}
+              <span>{category.icon}</span>
+              <span className="hidden sm:inline">{category.name}</span>
             </span>
           )}
 
@@ -150,7 +167,7 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
         {/* Due Date Display */}
         {task.dueDate && !task.completed && (
           <p
-            className={`text-xs mt-1 ${
+            className={`text-xs sm:text-sm mt-1 ${
               taskIsOverdue
                 ? "text-danger font-medium"
                 : "text-gray-500 dark:text-gray-400"
@@ -162,24 +179,15 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
 
         {/* Completion timestamp */}
         {task.completed && task.completedAt && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 animate-fade-in">
-            Completed {new Date(task.completedAt).toLocaleDateString()}
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 animate-fade-in">
+            ✓ Completed {new Date(task.completedAt).toLocaleDateString()}
           </p>
         )}
       </div>
 
-      {/* Completion indicator */}
-      {task.completed && (
-        <div className="flex-shrink-0 animate-fade-in">
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-            ✓ Done
-          </span>
-        </div>
-      )}
-
       {/* Delete Button */}
       <button
-        className="delete-button flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ml-2 p-2 text-gray-400 hover:text-danger hover:bg-danger/10 rounded-md"
+        className="delete-button flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-gray-400 hover:text-danger hover:bg-danger/10 rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center"
         onClick={handleDelete}
         aria-label={`Delete task: ${task.title}`}
       >
