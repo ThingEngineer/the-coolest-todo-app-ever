@@ -1,31 +1,39 @@
 /**
  * App Component
  * Root component for the Coolest Todo Application
+ * Now with Supabase authentication and cloud sync support
  */
 
 import { useEffect, useState } from "preact/hooks";
 import { useTasks } from "./hooks/useTasks";
 import { useCategories } from "./hooks/useCategories";
 import { useTheme } from "./hooks/useTheme";
+import { useAuth } from "./hooks/useAuth";
 import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import CategoryFilter from "./components/CategoryFilter";
 import ThemeSelector from "./components/ThemeSelector";
 import ConfirmModal from "./components/ConfirmModal";
+import { UserProfile } from "./components/UserProfile";
 import { getDateRanges, isOverdue } from "./services/dateParser";
 
 export default function App() {
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+
   const {
     tasks,
     loading,
     error,
     stats,
+    syncing,
+    isOnline,
     addTask,
     toggleTask,
     removeTask,
     clearCompleted,
     initDemo,
     updateFilter,
+    syncToSupabase,
   } = useTasks();
 
   const {
@@ -125,7 +133,7 @@ export default function App() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <header className="mb-8">
           <div className="flex items-start justify-between mb-4">
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-light-text dark:text-dark-text mb-2">
                 ✨ The Coolest Todo App{" "}
                 <span className="text-lg sm:text-xl md:text-2xl font-light text-gray-400 dark:text-gray-500 italic">
@@ -134,17 +142,30 @@ export default function App() {
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
                 Get things done with style
+                {isAuthenticated && isOnline && (
+                  <span className="ml-2 text-green-600 dark:text-green-400 text-sm">
+                    ☁️ Syncing
+                  </span>
+                )}
+                {isAuthenticated && !isOnline && (
+                  <span className="ml-2 text-orange-600 dark:text-orange-400 text-sm">
+                    📱 Offline
+                  </span>
+                )}
               </p>
             </div>
 
-            {/* Theme Selector */}
-            <ThemeSelector
-              currentTheme={currentTheme}
-              themePreference={themePreference}
-              availableThemes={availableThemes}
-              onChangeTheme={changeTheme}
-              isSystemTheme={isSystemTheme}
-            />
+            {/* User Profile & Theme Selector */}
+            <div className="flex items-center gap-2">
+              <UserProfile />
+              <ThemeSelector
+                currentTheme={currentTheme}
+                themePreference={themePreference}
+                availableThemes={availableThemes}
+                onChangeTheme={changeTheme}
+                isSystemTheme={isSystemTheme}
+              />
+            </div>
           </div>
 
           {/* Stats */}

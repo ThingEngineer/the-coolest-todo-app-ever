@@ -1,6 +1,7 @@
 /**
  * useTasks Hook
  * Custom hook for managing task state and CRUD operations
+ * Now supports hybrid storage: Supabase (when authenticated) + localStorage (offline fallback)
  */
 
 import { useState, useEffect } from "preact/hooks";
@@ -14,24 +15,35 @@ import {
   getTaskStats,
   initializeDemoData,
 } from "../services/taskService";
+import {
+  fetchTasks,
+  createTaskInSupabase,
+  updateTaskInSupabase,
+  deleteTaskFromSupabase,
+  syncLocalDataToSupabase,
+} from "../services/supabaseStorageService";
+import { useAuth } from "./useAuth";
+import { setItem, getItem } from "../services/storageService";
 
 /**
- * Custom hook for task management
+ * Custom hook for task management with hybrid storage
  * @returns {Object} Task state and operations
  */
 export function useTasks() {
+  const { user, isAuthenticated, isOnline } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [syncing, setSyncing] = useState(false);
   const [filter, setFilter] = useState({
     categoryId: undefined,
     sortBy: "order",
   });
 
-  // Load tasks on mount
+  // Load tasks on mount and when user changes
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [user?.id]);
 
   // Reload tasks when filter changes
   useEffect(() => {
@@ -41,19 +53,77 @@ export function useTasks() {
   }, [filter]);
 
   /**
-   * Load tasks from storage
+   * Load tasks from appropriate storage (Supabase if authenticated, localStorage otherwise)
    */
-  const loadTasks = () => {
+  const loadTasks = async () => {
     try {
       setLoading(true);
-      const loadedTasks = getAllTasks(filter);
-      setTasks(loadedTasks);
+
+      if (isAuthenticated && isOnline && user?.id) {
+        // Load from Supabase
+        const { data, error: fetchError } = await fetchTasks(user.id);
+
+        if (fetchError) {
+          console.error("Failed to load from Supabase:", fetchError);
+          // Fall back to localStorage
+          const localTasks = getAllTasks(filter);
+          setTasks(localTasks);
+        } else {
+          // Cache in localStorage
+          setItem("tasks", data);
+
+          // Apply filter
+          let filtered = data;
+          if (filter.categoryId !== undefined) {
+            filtered = data.filter((t) => t.categoryId === filter.categoryId);
+          }
+          setTasks(filtered);
+        }
+      } else {
+        // Load from localStorage
+        const localTasks = getAllTasks(filter);
+        setTasks(localTasks);
+      }
+
       setError(null);
     } catch (err) {
       setError("Failed to load tasks");
       console.error("Error loading tasks:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Sync local data to Supabase (called on first login)
+   */
+  const syncToSupabase = async () => {
+    if (!isAuthenticated || !user?.id || syncing) return;
+
+    try {
+      setSyncing(true);
+
+      const localTasks = getItem("tasks", []);
+      const localCategories = getItem("categories", []);
+
+      if (localTasks.length > 0 || localCategories.length > 0) {
+        const { success, error: syncError } = await syncLocalDataToSupabase(
+          user.id,
+          localTasks,
+          localCategories
+        );
+
+        if (success) {
+          console.log("Successfully synced local data to Supabase");
+          await loadTasks();
+        } else {
+          console.error("Failed to sync:", syncError);
+        }
+      }
+    } catch (err) {
+      console.error("Sync error:", err);
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -72,72 +142,135 @@ export function useTasks() {
   };
 
   /**
-   * Add a new task
+   * Add a new task (hybrid: try Supabase first, fall back to localStorage)
    * @param {Object} taskData - Task data
    * @returns {Object} Result
    */
-  const addTask = (taskData) => {
-    const result = createTask(taskData);
+  const addTask = async (taskData) => {
+    if (isAuthenticated && isOnline && user?.id) {
+      // Try Supabase first
+      const { data, error: createError } = await createTaskInSupabase(
+        user.id,
+        taskData
+      );
 
-    if (result.success) {
-      loadTasks();
+      if (createError) {
+        console.error("Failed to create in Supabase:", createError);
+        // Fall back to localStorage
+        const result = createTask(taskData);
+        if (result.success) {
+          loadTasks();
+        }
+        return result;
+      }
+
+      // Success - reload from Supabase
+      await loadTasks();
+      return { success: true, task: data, error: null };
     } else {
-      setError(result.error);
+      // Use localStorage
+      const result = createTask(taskData);
+      if (result.success) {
+        loadTasks();
+      } else {
+        setError(result.error);
+      }
+      return result;
     }
-
-    return result;
   };
 
   /**
-   * Update a task
+   * Update a task (hybrid storage)
    * @param {string} id - Task ID
    * @param {Object} updates - Fields to update
    * @returns {Object} Result
    */
-  const updateTaskById = (id, updates) => {
-    const result = updateTask(id, updates);
+  const updateTaskById = async (id, updates) => {
+    if (isAuthenticated && isOnline && user?.id) {
+      // Try Supabase first
+      const { data, error: updateError } = await updateTaskInSupabase(
+        id,
+        updates
+      );
 
-    if (result.success) {
-      loadTasks();
+      if (updateError) {
+        console.error("Failed to update in Supabase:", updateError);
+        // Fall back to localStorage
+        const result = updateTask(id, updates);
+        if (result.success) {
+          loadTasks();
+        }
+        return result;
+      }
+
+      // Success - reload
+      await loadTasks();
+      return { success: true, task: data, error: null };
     } else {
-      setError(result.error);
+      // Use localStorage
+      const result = updateTask(id, updates);
+      if (result.success) {
+        loadTasks();
+      } else {
+        setError(result.error);
+      }
+      return result;
     }
-
-    return result;
   };
 
   /**
-   * Toggle task completion
+   * Toggle task completion (hybrid storage)
    * @param {string} id - Task ID
    * @returns {Object} Result
    */
-  const toggleTask = (id) => {
-    const result = toggleTaskCompletion(id);
-
-    if (result.success) {
-      loadTasks();
-    } else {
-      setError(result.error);
+  const toggleTask = async (id) => {
+    // Get current task state
+    const task = tasks.find((t) => t.id === id);
+    if (!task) {
+      return { success: false, error: "Task not found" };
     }
 
-    return result;
+    const updates = {
+      completed: !task.completed,
+      completedAt: !task.completed ? new Date().toISOString() : null,
+    };
+
+    return updateTaskById(id, updates);
   };
 
   /**
-   * Delete a task
+   * Delete a task (hybrid storage)
    * @param {string} id - Task ID
    * @returns {Object} Result
    */
-  const removeTask = (id) => {
-    const result = deleteTask(id);
+  const removeTask = async (id) => {
+    if (isAuthenticated && isOnline && user?.id) {
+      // Try Supabase first
+      const { error: deleteError } = await deleteTaskFromSupabase(id);
 
-    if (result.success) {
-      loadTasks();
+      if (deleteError) {
+        console.error("Failed to delete from Supabase:", deleteError);
+        // Fall back to localStorage
+        const result = deleteTask(id);
+        if (result.success) {
+          loadTasks();
+        }
+        return result;
+      }
+
+      // Success - reload
+      await loadTasks();
+      return { success: true, error: null };
     } else {
-      setError(result.error);
+      // Use localStorage
+      const result = deleteTask(id);
+      if (result.success) {
+        loadTasks();
+      } else {
+        setError(result.error);
+      }
+      return result;
     }
-
-    return result;
   };
 
   /**
@@ -177,6 +310,8 @@ export function useTasks() {
     error,
     filter,
     stats,
+    syncing,
+    isOnline,
 
     // Operations
     addTask,
@@ -188,5 +323,6 @@ export function useTasks() {
     initDemo,
     updateFilter,
     setError,
+    syncToSupabase,
   };
 }
