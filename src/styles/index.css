@@ -49,7 +49,11 @@ html.no-transitions * {
 body {
   min-height: 100vh;
   /* Don't set background-color/color here during no-transitions phase - inline styles handle it */
+  /* Optimize transitions - background-color is necessary here for theme switching */
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Force GPU acceleration for smoother transitions */
+  transform: translateZ(0);
+  will-change: background-color;
 }
 
 /* Once transitions are enabled, use CSS variables */

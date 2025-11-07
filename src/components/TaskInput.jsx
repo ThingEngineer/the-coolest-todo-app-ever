@@ -4,8 +4,11 @@
  */
 
 import { useState } from "preact/hooks";
+import { lazy, Suspense } from "preact/compat";
 import { getCategoryColorClasses } from "../utils/helpers";
-import DatePicker from "./DatePicker";
+
+// Lazy load DatePicker for better initial performance
+const DatePicker = lazy(() => import("./DatePicker"));
 
 export default function TaskInput({ onAddTask, error, categories }) {
   const [title, setTitle] = useState("");
@@ -171,12 +174,20 @@ export default function TaskInput({ onAddTask, error, categories }) {
           </div>
         )}
 
-        {/* Due Date Picker */}
+        {/* Due Date Picker - Lazy loaded for better initial performance */}
         <div className="mt-3">
           <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">
             Due Date (optional):
           </label>
-          <DatePicker value={dueDate} onChange={setDueDate} />
+          <Suspense
+            fallback={
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Loading...
+              </div>
+            }
+          >
+            <DatePicker value={dueDate} onChange={setDueDate} />
+          </Suspense>
         </div>
 
         {(inputError || error) && (

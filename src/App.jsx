@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "preact/hooks";
+import { lazy, Suspense } from "preact/compat";
 import { useTasks } from "./hooks/useTasks";
 import { useCategories } from "./hooks/useCategories";
 import { useTheme } from "./hooks/useTheme";
@@ -14,15 +15,19 @@ import TaskInput from "./components/TaskInput";
 import TaskList from "./components/TaskList";
 import CategoryFilter from "./components/CategoryFilter";
 import ThemeSelector from "./components/ThemeSelector";
-import ConfirmModal from "./components/ConfirmModal";
 import { UserProfile } from "./components/UserProfile";
-import AnimatedBackground from "./components/AnimatedBackground";
 import { getDateRanges, isOverdue } from "./services/dateParser";
 import {
   getUserFriendlyError,
   SuccessMessages,
   InfoMessages,
 } from "./utils/errorMessages";
+
+// Lazy load non-critical components for better initial load performance
+const ConfirmModal = lazy(() => import("./components/ConfirmModal"));
+const AnimatedBackground = lazy(() =>
+  import("./components/AnimatedBackground")
+);
 
 export default function App() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
@@ -212,9 +217,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg transition-theme duration-300 relative overflow-hidden">
-      {/* Animated Background */}
-      <AnimatedBackground />
+    <div
+      className="min-h-screen bg-light-bg dark:bg-dark-bg transition-theme duration-300 relative overflow-hidden"
+      style={{
+        // Prevent layout shifts by setting explicit minimum dimensions
+        minHeight: "100vh",
+        // Force GPU acceleration
+        transform: "translateZ(0)",
+      }}
+    >
+      {/* Animated Background - Lazy loaded for better initial performance */}
+      <Suspense fallback={null}>
+        <AnimatedBackground />
+      </Suspense>
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-2xl lg:max-w-4xl relative z-10">
         <header className="mb-4 sm:mb-6 md:mb-8">
@@ -470,21 +485,25 @@ export default function App() {
         </footer>
       </div>
 
-      {/* Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showClearModal}
-        onClose={() => setShowClearModal(false)}
-        onConfirm={handleClearCompleted}
-        title="Clear Completed Tasks?"
-        message={`Are you sure you want to permanently delete ${
-          completedTasks.length
-        } completed task${
-          completedTasks.length === 1 ? "" : "s"
-        }? This action cannot be undone.`}
-        confirmText="Yes, Clear Them"
-        cancelText="Cancel"
-        variant="danger"
-      />
+      {/* Confirmation Modal - Lazy loaded for better initial performance */}
+      {showClearModal && (
+        <Suspense fallback={null}>
+          <ConfirmModal
+            isOpen={showClearModal}
+            onClose={() => setShowClearModal(false)}
+            onConfirm={handleClearCompleted}
+            title="Clear Completed Tasks?"
+            message={`Are you sure you want to permanently delete ${
+              completedTasks.length
+            } completed task${
+              completedTasks.length === 1 ? "" : "s"
+            }? This action cannot be undone.`}
+            confirmText="Yes, Clear Them"
+            cancelText="Cancel"
+            variant="danger"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

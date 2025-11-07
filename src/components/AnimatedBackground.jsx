@@ -134,6 +134,13 @@ export default function AnimatedBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0 opacity-40"
+      style={{
+        width: "100%",
+        height: "100%",
+        // Force GPU acceleration
+        transform: "translateZ(0)",
+        willChange: "auto",
+      }}
       aria-hidden="true"
     />
   );
