@@ -1,4 +1,5 @@
 import { useEffect } from "preact/hooks";
+import { createPortal } from "preact/compat";
 
 /**
  * A beautiful confirmation modal with smooth animations
@@ -91,7 +92,7 @@ export default function ConfirmModal({
     }
   };
 
-  return (
+  const modalContent = (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
       onClick={handleBackdropClick}
@@ -156,4 +157,7 @@ export default function ConfirmModal({
       </div>
     </div>
   );
+
+  // Use portal to render modal at the root level, avoiding stacking context issues
+  return createPortal(modalContent, document.body);
 }
