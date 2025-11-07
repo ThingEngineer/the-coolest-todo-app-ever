@@ -3,6 +3,7 @@
  * Container that displays a list of tasks with category information
  */
 
+import { useEffect, useState } from "preact/hooks";
 import TaskItem from "./TaskItem";
 
 export default function TaskList({
@@ -11,7 +12,26 @@ export default function TaskList({
   onToggleTask,
   onDeleteTask,
   categories,
+  isCompletedSection = false, // New prop to identify section type
 }) {
+  const [animatingTasks, setAnimatingTasks] = useState(new Set());
+
+  // Track task IDs to detect when tasks move between sections
+  useEffect(() => {
+    const newAnimatingTasks = new Set();
+    tasks.forEach((task) => {
+      newAnimatingTasks.add(task.id);
+    });
+    setAnimatingTasks(newAnimatingTasks);
+
+    // Clear animation state after animation completes
+    const timer = setTimeout(() => {
+      setAnimatingTasks(new Set());
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [tasks.map((t) => t.id).join(",")]);
+
   if (loading) {
     return (
       <div
@@ -52,16 +72,26 @@ export default function TaskList({
 
   return (
     <div className="space-y-2 sm:space-y-3" role="list" aria-label="Tasks">
-      {tasks.map((task) => (
-        <div key={task.id} role="listitem" className="animate-slide-in-down">
-          <TaskItem
-            task={task}
-            onToggle={onToggleTask}
-            onDelete={onDeleteTask}
-            category={getCategoryForTask(task.categoryId)}
-          />
-        </div>
-      ))}
+      {tasks.map((task) => {
+        // Determine if this task should animate in (it's new to this section)
+        const shouldAnimateIn = animatingTasks.has(task.id);
+        const animationClass = shouldAnimateIn
+          ? isCompletedSection
+            ? "animate-slide-in-from-active"
+            : "animate-slide-in-from-completed"
+          : "";
+
+        return (
+          <div key={task.id} role="listitem" className={animationClass}>
+            <TaskItem
+              task={task}
+              onToggle={onToggleTask}
+              onDelete={onDeleteTask}
+              category={getCategoryForTask(task.categoryId)}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

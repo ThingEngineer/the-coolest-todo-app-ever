@@ -5,6 +5,7 @@
 
 import { getItem, setItem } from "./storageService";
 import { validateCategoryName, validateColor } from "../utils/validators";
+import { sanitizeCategoryName } from "../utils/sanitize";
 import { generateId } from "../utils/helpers";
 import { getDemoCategories } from "./demoData";
 
@@ -62,8 +63,11 @@ export function getCategoryById(id) {
  * @returns {Object} { success: boolean, category: Category, error: string }
  */
 export function createCategory(categoryData) {
-  // Validate name
-  const nameValidation = validateCategoryName(categoryData.name);
+  // Sanitize name first
+  const sanitizedName = sanitizeCategoryName(categoryData.name);
+
+  // Validate sanitized name
+  const nameValidation = validateCategoryName(sanitizedName);
   if (!nameValidation.valid) {
     return { success: false, category: null, error: nameValidation.error };
   }
@@ -78,7 +82,7 @@ export function createCategory(categoryData) {
 
   // Check for duplicate name
   const duplicate = categories.find(
-    (cat) => cat.name.toLowerCase() === categoryData.name.trim().toLowerCase()
+    (cat) => cat.name.toLowerCase() === sanitizedName.toLowerCase()
   );
   if (duplicate) {
     return {
@@ -90,7 +94,7 @@ export function createCategory(categoryData) {
 
   const newCategory = {
     id: generateId(),
-    name: categoryData.name.trim(),
+    name: sanitizedName,
     color: categoryData.color,
     createdAt: new Date().toISOString(),
   };
@@ -121,7 +125,9 @@ export function updateCategory(id, updates) {
 
   // Validate name if being updated
   if (updates.name !== undefined) {
-    const validation = validateCategoryName(updates.name);
+    // Sanitize name first
+    const sanitizedName = sanitizeCategoryName(updates.name);
+    const validation = validateCategoryName(sanitizedName);
     if (!validation.valid) {
       return { success: false, category: null, error: validation.error };
     }
@@ -129,8 +135,7 @@ export function updateCategory(id, updates) {
     // Check for duplicate name (excluding current category)
     const duplicate = categories.find(
       (cat) =>
-        cat.id !== id &&
-        cat.name.toLowerCase() === updates.name.trim().toLowerCase()
+        cat.id !== id && cat.name.toLowerCase() === sanitizedName.toLowerCase()
     );
     if (duplicate) {
       return {
@@ -140,7 +145,7 @@ export function updateCategory(id, updates) {
       };
     }
 
-    updates.name = updates.name.trim();
+    updates.name = sanitizedName;
   }
 
   // Validate color if being updated

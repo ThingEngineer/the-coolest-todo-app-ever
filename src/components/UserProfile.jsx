@@ -7,16 +7,20 @@
 
 import { useState } from "preact/hooks";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../contexts/ToastContext";
 import { AuthModal } from "./AuthModal";
+import { SuccessMessages } from "../utils/errorMessages";
 
 export function UserProfile() {
   const { user, isAuthenticated, isOnline, signOut, loading } = useAuth();
+  const toast = useToast();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleSignOut = async () => {
     setShowDropdown(false);
     await signOut();
+    toast.success(SuccessMessages.authSignOut);
   };
 
   // Not authenticated - show sign in button
@@ -47,7 +51,10 @@ export function UserProfile() {
         {showAuthModal && (
           <AuthModal
             onClose={() => setShowAuthModal(false)}
-            onSuccess={() => setShowAuthModal(false)}
+            onSuccess={() => {
+              setShowAuthModal(false);
+              toast.success(SuccessMessages.authSignIn);
+            }}
           />
         )}
       </>
