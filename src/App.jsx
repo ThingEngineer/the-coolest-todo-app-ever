@@ -393,6 +393,7 @@ export default function App() {
                   onToggleTask={handleToggleTask}
                   onDeleteTask={handleRemoveTask}
                   categories={categories}
+                  isCompletedSection={false}
                 />
               </div>
             )}
@@ -417,6 +418,7 @@ export default function App() {
                   onToggleTask={handleToggleTask}
                   onDeleteTask={handleRemoveTask}
                   categories={categories}
+                  isCompletedSection={true}
                 />
               </div>
             )}

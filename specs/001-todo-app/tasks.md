@@ -354,9 +354,19 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 
 ---
 
+## Phase 9: UX Improvements (Post-Launch)
+
+**Purpose**: Refinements based on user feedback
+
+- [x] T115 [UX] Replace distracting task completion animation with smooth slide transitions between Active/Completed sections (src/styles/animations.css, src/components/TaskItem.jsx, src/components/TaskList.jsx, src/App.jsx)
+
+**Checkpoint**: Smooth, non-distracting animations when toggling task completion
+
+---
+
 ## Task Summary
 
-**Total Tasks**: 114
+**Total Tasks**: 115
 
 - Phase 1 (Setup): 12 tasks
 - Phase 2 (Foundational): 6 tasks
@@ -366,6 +376,7 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 - Phase 6 (US4): 14 tasks
 - Phase 7 (US5): 17 tasks
 - Phase 8 (Polish): 24 tasks
+- Phase 9 (UX Improvements): 1 task
 
 **Parallel Opportunities**: 61 tasks marked [P] can run in parallel within their phase
 

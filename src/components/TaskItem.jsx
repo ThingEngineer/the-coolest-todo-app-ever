@@ -11,12 +11,13 @@ import ConfirmModal from "./ConfirmModal";
 
 export default function TaskItem({ task, onToggle, onDelete, category }) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState(null); // 'toCompleted' or 'toActive'
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const taskIsOverdue =
     !task.completed && task.dueDate && isOverdue(task.dueDate);
 
   /**
-   * Handle task click to toggle completion with animation and haptic feedback
+   * Handle task click to toggle completion with smooth slide animation
    */
   const handleClick = (e) => {
     // Prevent toggle when clicking delete button
@@ -24,18 +25,24 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
       return;
     }
 
+    // Set animation direction based on current state
+    const direction = task.completed ? "toActive" : "toCompleted";
+    setAnimationDirection(direction);
     setIsAnimating(true);
-    onToggle(task.id);
 
     // Trigger haptic feedback when completing a task
     if (!task.completed) {
       hapticTaskComplete();
     }
 
-    // Reset animation after it completes (match animation duration)
+    // Toggle the task after animation starts
+    onToggle(task.id);
+
+    // Reset animation state after it completes
     setTimeout(() => {
       setIsAnimating(false);
-    }, 800);
+      setAnimationDirection(null);
+    }, 400); // Match animation duration
   };
 
   /**
@@ -68,14 +75,23 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
         focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2
         cursor-pointer
         ${task.completed ? "opacity-60" : "opacity-100"}
-        ${isAnimating ? "animate-task-complete" : ""}
+        ${
+          isAnimating && animationDirection === "toCompleted"
+            ? "animate-slide-to-completed"
+            : ""
+        }
+        ${
+          isAnimating && animationDirection === "toActive"
+            ? "animate-slide-to-active"
+            : ""
+        }
         ${taskIsOverdue ? "border-l-4 border-l-danger" : ""}
         active:scale-[0.98]
       `}
       style={{
         transition: isAnimating
           ? "none"
-          : "all 0.2s ease, opacity 0.6s ease-out",
+          : "opacity 0.3s ease, transform 0.2s ease",
       }}
       onClick={handleClick}
       role="checkbox"
