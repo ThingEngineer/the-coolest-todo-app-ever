@@ -362,14 +362,15 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 - [x] T116 [UX] Implement mobile swipe actions - swipe left to delete, swipe right to complete with visual feedback and haptic response (src/hooks/useTouchSwipe.js, src/components/TaskItem.jsx)
 - [x] T117 [UX] Unit test suite with comprehensive coverage (151 tests, 88% passing - validators, sanitize, dateParser, storageService, taskService, categoryService)
 - [x] T118 [SEC] Implement Content Security Policy with 9 directives to protect against XSS, clickjacking, and injection attacks (index.html)
+- [x] T119 [SEC] Implement dependency scanning with npm audit in CI, Dependabot for automatic updates (.github/workflows/ci.yml, .github/dependabot.yml, package.json)
 
-**Checkpoint**: Smooth, non-distracting animations, intuitive mobile swipe gestures, comprehensive test coverage, and security hardening
+**Checkpoint**: Smooth, non-distracting animations, intuitive mobile swipe gestures, comprehensive test coverage, security hardening, and automated dependency monitoring
 
 ---
 
 ## Task Summary
 
-**Total Tasks**: 118
+**Total Tasks**: 119
 
 - Phase 1 (Setup): 12 tasks
 - Phase 2 (Foundational): 6 tasks
@@ -379,7 +380,7 @@ Add test tasks BEFORE implementation tasks in each phase if TDD approach desired
 - Phase 6 (US4): 14 tasks
 - Phase 7 (US5): 17 tasks
 - Phase 8 (Polish): 24 tasks
-- Phase 9 (UX Improvements): 4 tasks
+- Phase 9 (UX Improvements): 5 tasks
 
 **Parallel Opportunities**: 61 tasks marked [P] can run in parallel within their phase
 

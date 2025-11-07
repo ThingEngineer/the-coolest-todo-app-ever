@@ -10,7 +10,9 @@
         "test": "vitest",
         "test:ui": "vitest --ui",
         "test:e2e": "playwright test",
-        "lint": "eslint src --ext js,jsx"
+        "lint": "eslint src --ext js,jsx",
+        "audit": "npm audit --audit-level=moderate",
+        "audit:fix": "npm audit fix"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.80.0",
