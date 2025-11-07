@@ -2,8 +2,93 @@
 <html lang="en">
 
 <head>
+    <!-- CRITICAL: Theme detection MUST run FIRST - blocks initial paint -->
+    <script>
+        (function () {
+            // Read theme BEFORE any rendering happens
+            const stored = localStorage.getItem('coolest-todo-user-preferences');
+            let theme = 'light';
+
+            if (stored) {
+                try {
+                    const preferencesString = JSON.parse(stored);
+                    const preferences = JSON.parse(preferencesString);
+                    theme = preferences.theme || 'light';
+
+                    if (theme === 'system') {
+                        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    }
+                } catch (e) {
+                    theme = 'light';
+                }
+            }
+
+            // Apply theme to html element IMMEDIATELY
+            const root = document.documentElement;
+            const isDark = theme === 'dark';
+
+            if (isDark) {
+                root.classList.add('dark');
+            }
+
+            root.classList.add('no-transitions');
+
+            // Set colors with highest priority
+            const bgColor = isDark ? '#111827' : '#f9fafb';
+            const textColor = isDark ? '#f9fafb' : '#111827';
+
+            root.style.cssText = `background-color:${bgColor}!important;color:${textColor}!important;`;
+        })();
+    </script>
+
+    <!-- CRITICAL: Inline styles applied IMMEDIATELY after script -->
+    <style>
+        /* Prevent any white flash - apply colors before CSS loads */
+        html {
+            background-color: #f9fafb;
+            color: #111827;
+        }
+
+        html.dark {
+            background-color: #111827;
+            color: #f9fafb;
+        }
+
+        body,
+        #app {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: inherit;
+            color: inherit;
+        }
+
+        /* Disable all transitions during initial load */
+        html.no-transitions,
+        html.no-transitions *,
+        html.no-transitions *::before,
+        html.no-transitions *::after {
+            transition: none !important;
+            animation: none !important;
+        }
+
+        /* KEY FIX: Ensure all elements inherit background during load to prevent white flash */
+        html.no-transitions * {
+            background-color: inherit !important;
+        }
+
+        /* Allow form controls to be transparent */
+        html.no-transitions button,
+        html.no-transitions input,
+        html.no-transitions textarea,
+        html.no-transitions select {
+            background-color: transparent !important;
+        }
+    </style>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light">
 
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
@@ -42,79 +127,6 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <title>✨ The Coolest Todo App (ever) - Get Things Done with Style</title>
-
-    <!-- Prevent dark mode flash by applying theme before render -->
-    <script>
-        (function () {
-            try {
-                // Get stored theme preference from localStorage
-                // Note: storage service uses 'coolest-todo-' prefix and double-encodes JSON
-                const stored = localStorage.getItem('coolest-todo-user-preferences');
-
-                let theme = 'light';
-
-                if (stored) {
-                    try {
-                        // Parse double-encoded JSON (storage service stringifies already-stringified data)
-                        const preferencesString = JSON.parse(stored);
-                        const preferences = JSON.parse(preferencesString);
-                        theme = preferences.theme || 'light';
-
-                        // If theme is 'system', detect system preference
-                        if (theme === 'system') {
-                            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                        }
-                    } catch (e) {
-                        theme = 'light';
-                    }
-                }
-
-                // Apply theme class to html element
-                const root = document.documentElement;
-                if (theme === 'dark') {
-                    root.classList.add('dark');
-                } else {
-                    root.classList.remove('dark');
-                }
-
-                // Add class to disable transitions during page load
-                root.classList.add('no-transitions');
-
-                // CRITICAL: Set colors inline to prevent flash
-                // These colors must match the CSS variables in index.css
-                const bgColor = theme === 'dark' ? '#111827' : '#f9fafb';
-                const textColor = theme === 'dark' ? '#f9fafb' : '#111827';
-
-                // Apply to html element
-                root.style.setProperty('background-color', bgColor, 'important');
-                root.style.setProperty('color', textColor, 'important');
-
-                // CRITICAL: Also set on body when it exists
-                // This prevents flash when CSS variables load
-                if (document.body) {
-                    document.body.style.setProperty('background-color', bgColor, 'important');
-                    document.body.style.setProperty('color', textColor, 'important');
-                } else {
-                    // Body doesn't exist yet, set it when DOM loads
-                    document.addEventListener('DOMContentLoaded', function () {
-                        if (document.body) {
-                            document.body.style.setProperty('background-color', bgColor, 'important');
-                            document.body.style.setProperty('color', textColor, 'important');
-                        }
-                    });
-                }
-
-                // Note: no-transitions class will be removed by themeService when React takes over
-            } catch (e) {
-                // Fallback to light theme on error
-                const root = document.documentElement;
-                root.classList.remove('dark');
-                root.classList.add('no-transitions');
-                root.style.setProperty('background-color', '#f9fafb', 'important');
-                root.style.setProperty('color', '#111827', 'important');
-            }
-        })();
-    </script>
 </head>
 
 <body>
