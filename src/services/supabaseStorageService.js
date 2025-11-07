@@ -188,6 +188,40 @@ export async function deleteTaskFromSupabase(taskId) {
 }
 
 /**
+ * Clear all completed tasks for a user from Supabase
+ * @param {string} userId - User ID from auth
+ * @returns {Promise<{data: {count: number}|null, error: object|null}>}
+ */
+export async function clearCompletedTasksFromSupabase(userId) {
+  if (!isSupabaseAvailable() || !userId) {
+    return {
+      data: null,
+      error: { message: "Supabase not available or no user ID" },
+    };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("user_id", userId)
+      .eq("completed", true)
+      .select();
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data: { count: data?.length || 0 }, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: err.message || "Failed to clear completed tasks" },
+    };
+  }
+}
+
+/**
  * Fetch all categories for the current user from Supabase
  * @param {string} userId - User ID from auth
  * @returns {Promise<{data: Array, error: object|null}>}
