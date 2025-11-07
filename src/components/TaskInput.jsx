@@ -17,7 +17,7 @@ export default function TaskInput({ onAddTask, error, categories }) {
    * Handle form submission
    * @param {Event} e - Form event
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -25,19 +25,19 @@ export default function TaskInput({ onAddTask, error, categories }) {
       return;
     }
 
-    const result = onAddTask({
+    const result = await onAddTask({
       title,
       categoryId: selectedCategoryId,
       dueDate,
     });
 
-    if (result.success) {
+    if (result && result.success) {
       setTitle("");
       setDueDate(null);
       setInputError("");
       // Keep category selected for next task
     } else {
-      setInputError(result.error);
+      setInputError(result?.error || "Failed to add task");
     }
   };
 
