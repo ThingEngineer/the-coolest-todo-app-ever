@@ -312,7 +312,7 @@ export function useTasks() {
       // Use localStorage
       const result = clearCompletedTasks();
       if (result.success) {
-        loadTasks();
+        await loadTasks();
       } else {
         setError(result.error);
       }
