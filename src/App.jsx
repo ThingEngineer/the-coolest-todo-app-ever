@@ -307,7 +307,10 @@ export default function App() {
         </header>
 
         <main>
-          <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+          <div
+            className="bg-white dark:bg-dark-surface rounded-lg shadow-lg p-4 sm:p-5 md:p-6"
+            style={{ minHeight: "600px" }} // Reserve space to prevent layout shifts
+          >
             <TaskInput
               onAddTask={handleAddTask}
               error={error}
@@ -315,17 +318,25 @@ export default function App() {
             />
 
             {/* Category Filter */}
-            {!categoriesLoading && categories.length > 0 && (
-              <CategoryFilter
-                categories={categories}
-                selectedCategoryId={selectedCategoryId}
-                onSelectCategory={setSelectedCategoryId}
-                taskCounts={getTaskCounts()}
-              />
+            {categoriesLoading ? (
+              <CategoryFilter loading={true} />
+            ) : (
+              categories.length > 0 && (
+                <CategoryFilter
+                  categories={categories}
+                  selectedCategoryId={selectedCategoryId}
+                  onSelectCategory={setSelectedCategoryId}
+                  taskCounts={getTaskCounts()}
+                  loading={false}
+                />
+              )
             )}
 
             {/* Sort and Quick Date Filters */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div
+              className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700"
+              style={{ minHeight: "60px" }} // Prevent layout shift
+            >
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
                 <label
@@ -398,7 +409,10 @@ export default function App() {
 
             {/* Active Tasks */}
             {activeTasks.length > 0 && (
-              <div className="mb-4 sm:mb-6">
+              <div
+                className="mb-4 sm:mb-6"
+                style={{ containIntrinsicSize: "auto 300px" }} // Hint for content-visibility
+              >
                 <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-wide">
                   Active Tasks
                 </h2>
@@ -415,7 +429,7 @@ export default function App() {
 
             {/* Completed Tasks */}
             {showCompleted && completedTasks.length > 0 && (
-              <div>
+              <div style={{ containIntrinsicSize: "auto 200px" }}>
                 <div className="flex items-center justify-between mb-2 sm:mb-3">
                   <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                     Completed Tasks

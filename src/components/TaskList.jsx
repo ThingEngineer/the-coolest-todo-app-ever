@@ -38,12 +38,14 @@ export default function TaskList({
         className="space-y-2 sm:space-y-3"
         aria-live="polite"
         aria-busy="true"
+        style={{ minHeight: "200px" }} // Reserve space to prevent layout shift
       >
         {/* Skeleton loaders */}
         {[1, 2, 3].map((i) => (
           <div
             key={i}
             className="flex items-center gap-3 p-3 sm:p-4 bg-white dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-lg animate-pulse"
+            style={{ minHeight: "72px" }} // Match approximate task item height
           >
             <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-gray-200 dark:bg-gray-700"></div>
             <div className="flex-1 space-y-2">
@@ -71,7 +73,14 @@ export default function TaskList({
   };
 
   return (
-    <div className="space-y-2 sm:space-y-3" role="list" aria-label="Tasks">
+    <div
+      className="space-y-2 sm:space-y-3"
+      role="list"
+      aria-label="Tasks"
+      style={{
+        minHeight: tasks.length > 0 ? `${tasks.length * 76}px` : "auto",
+      }} // Reserve space based on task count
+    >
       {tasks.map((task) => {
         // Determine if this task should animate in (it's new to this section)
         const shouldAnimateIn = animatingTasks.has(task.id);
