@@ -174,6 +174,7 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
           ${!isSwiping ? "active:scale-[0.98]" : ""}
         `}
         style={{
+          minHeight: "72px", // Explicit min-height to prevent layout shifts
           transform: isSwiping
             ? `translateX(${swipeOffset}px)`
             : "translateX(0)",
@@ -250,7 +251,10 @@ export default function TaskItem({ task, onToggle, onDelete, category }) {
           </div>
 
           {/* Category Badge and Overdue on new line for mobile */}
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+          <div
+            className="flex items-center gap-2 mt-1.5 flex-wrap"
+            style={{ minHeight: "24px" }} // Reserve space for badge to prevent layout shift
+          >
             {/* Category Badge */}
             {category && (
               <span

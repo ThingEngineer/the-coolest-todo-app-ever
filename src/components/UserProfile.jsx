@@ -6,10 +6,15 @@
  */
 
 import { useState } from "preact/hooks";
+import { lazy, Suspense } from "preact/compat";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../contexts/ToastContext";
-import { AuthModal } from "./AuthModal";
 import { SuccessMessages } from "../utils/errorMessages";
+
+// Lazy load AuthModal for better initial performance
+const AuthModal = lazy(() =>
+  import("./AuthModal").then((module) => ({ default: module.AuthModal }))
+);
 
 export function UserProfile() {
   const { user, isAuthenticated, isOnline, signOut, loading } = useAuth();
@@ -49,13 +54,15 @@ export function UserProfile() {
         </button>
 
         {showAuthModal && (
-          <AuthModal
-            onClose={() => setShowAuthModal(false)}
-            onSuccess={() => {
-              setShowAuthModal(false);
-              toast.success(SuccessMessages.authSignIn);
-            }}
-          />
+          <Suspense fallback={null}>
+            <AuthModal
+              onClose={() => setShowAuthModal(false)}
+              onSuccess={() => {
+                setShowAuthModal(false);
+                toast.success(SuccessMessages.authSignIn);
+              }}
+            />
+          </Suspense>
         )}
       </>
     );

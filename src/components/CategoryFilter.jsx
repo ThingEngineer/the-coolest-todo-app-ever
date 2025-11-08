@@ -10,6 +10,7 @@ export default function CategoryFilter({
   selectedCategoryId,
   onSelectCategory,
   taskCounts,
+  loading = false,
 }) {
   /**
    * Handle category selection
@@ -28,8 +29,27 @@ export default function CategoryFilter({
     return taskCounts?.[categoryId || "all"] || 0;
   };
 
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div className="mb-4 sm:mb-6" style={{ minHeight: "80px" }}>
+        <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-wide">
+          Filter by Category
+        </h2>
+        <div className="flex gap-2 overflow-x-auto">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"
+            ></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mb-4 sm:mb-6">
+    <div className="mb-4 sm:mb-6" style={{ minHeight: "80px" }}>
       <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 sm:mb-3 uppercase tracking-wide">
         Filter by Category
       </h2>
