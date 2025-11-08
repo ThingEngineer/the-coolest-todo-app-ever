@@ -22,6 +22,17 @@
   --color-border: #374151;
 }
 
+/* Font Loading Optimization */
+/* Use font-display: swap to prevent FOIT (Flash of Invisible Text) */
+/* System fonts should load with fallback immediately visible */
+@font-face {
+  font-family: "System Font Stack";
+  font-display: swap;
+  src: local("system-ui"), local("-apple-system"), local("BlinkMacSystemFont"),
+    local("Segoe UI"), local("Roboto"), local("Helvetica Neue"), local("Arial"),
+    local("sans-serif");
+}
+
 /* CSS Reset and Base Styles */
 *,
 *::before,
@@ -34,9 +45,11 @@
 html {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
+  font-display: swap;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Disable transitions during page load to prevent flash */
