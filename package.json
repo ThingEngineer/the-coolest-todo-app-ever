@@ -15,7 +15,7 @@
         "audit:fix": "npm audit fix"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.80.0",
+        "@supabase/supabase-js": "^2.81.1",
         "isomorphic-dompurify": "^2.31.0",
         "preact": "^10.19.3"
     },
