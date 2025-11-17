@@ -16,7 +16,7 @@
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.80.0",
-        "isomorphic-dompurify": "^2.31.0",
+        "isomorphic-dompurify": "^2.32.0",
         "preact": "^10.19.3"
     },
     "devDependencies": {
